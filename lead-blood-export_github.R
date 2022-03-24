@@ -75,8 +75,7 @@ leadblood_filtered <- semi_join(x= leadblood, y = CBlist, by = c("CB" = "FIPS"))
 length(unique(leadblood_filtered$CB))
 
 #Exporting the extracted data to the database.
-sqlSave(db_conn,CensusBlocks, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
-
+sqlSave(db_conn,leadblood_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 #Close the ODBC connection.
 odbcClose(db_conn)
