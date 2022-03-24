@@ -23,11 +23,6 @@ str(leadblood)
 #Connect to the blank Access database using the Access 2007 version of the ODBC connection command.
 db_conn <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood-levels-from-ICF_02222022.accdb")
 
-##COMMENTED OUT FOR NOW
-#Creating a list with data types for each column in leadblood, to be assigned in the exported Access table.
-#columnTypes <- list(CB="varchar(255)", AgeGr="varchar(255)", EthGr="double", Population="double", AltPb="double", AltPb0="double", PbB="double", PbB0="double")
-
-#str(columnTypes)
 
 ##Testing process of subsetting data by Census Block and exporting to Access.
 #Filter main table to create table 'CBtest'
@@ -37,45 +32,42 @@ CBtest <- leadblood %>%
 #Export to Access as table called "CBtest." Confirmed exported successfully.
 sqlSave(db_conn, CBtest, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
-#Test with Census Block with Population values listed in scientific notation. Creates filtered table without scientific notation, as intended.
+#Noticed that some of the values in the Population column are in scientific notation. Not sure if that is a problem. Tried testing issue below
+#Create filtered table without scientific notation, as intended.
 CBtest2 <- leadblood %>%
   filter(CB == "482012324031")
 
+#Export "CBtest2" table to the Access database.
 sqlSave(db_conn, CBtest2, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
-#DRIVERINFO <- "Driver={Microsoft Access Driver (*.mdb, *.accdb)};"
-#MDBPATH <- "C:/Users/leo/student-dummy.accdb"
-#PATH <- paste0(DRIVERINFO, "DBQ=", MDBPATH)
-
-## Establish connection to 
-#channel <- odbcDriverConnect(PATH)
-
 #Use sqlSave function to export the lead.blood dataframe to the Access database. 
-#Note to self: Probably need to delete or troubleshoot "varTypes."
+#Note to self: May need to delete or troubleshoot "varTypes."
 sqlSave(db_conn,leadblood, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, varTypes = columnTypes, fast = FALSE)
 
-##Separate analysis for Kristi, run on 3/3/2022.
 
-#Calculating number of unique Census blocks in ICF's data.
+####Separate analysis for Kristi, run on 3/3/2022.
+
+#Calculate number of unique Census blocks in ICF's data.
 length(unique(leadblood$CB))
 
-#Creating data frame with unique Census blocks.
+#Create data frame with unique Census blocks.
 CensusBlocks <- unique(leadblood[c("CB")])
 
-#Exporting Census blocks data frame to Access database.
+#Export Census blocks data frame to Access database.
 sqlSave(db_conn,CensusBlocks, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
-##Extracting data based on Kristi's analysis. Run on 3/24/22.
+######Extract lead-blood data for unique Census blocks. Run on 3/24/22.
 
-#Creating subset of leadblood dataframe with only Census blocks of interest (the 222 unique blocks).
-#Filtering the leadblood data to only include rows data for the 222 unique Census blocks. 
+#Create subset of leadblood dataframe with only Census blocks of interest (the 222 unique blocks).
+#Filter the leadblood data to only include rows data for the 222 unique Census blocks. 
 leadblood_filtered <- semi_join(x= leadblood, y = CBlist, by = c("CB" = "FIPS"))
 
-#Confirming that the number of unique Census blocks in the extracted column is 222 as expected.
+#Confirm that the number of unique Census blocks in the extracted column is 222 as expected.
 length(unique(leadblood_filtered$CB))
 
-#Exporting the extracted data to the database.
+#Export the extracted data to the database.
 sqlSave(db_conn,leadblood_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
 
 #Close the ODBC connection.
 odbcClose(db_conn)
