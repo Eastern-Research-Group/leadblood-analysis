@@ -13,6 +13,7 @@ library(dplyr)
 leadblood <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood data from ICF/IEUBK_CBG_OptionA.csv")
 
 #Create dataframe in R with unique Census blocks to pull corresponding lead-blood data.
+#Also ran for 2022 Proposal because it's still at same filepath.
 CBlist <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Census Block GIS/unique-census-blocks-for-r.csv")
 
 #Checking data types for each column.
@@ -22,6 +23,13 @@ str(leadblood)
 
 #Connect to the blank Access database using the Access 2007 version of the ODBC connection command.
 db_conn <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood-levels-from-ICF_02222022.accdb")
+
+
+#######2022 Proposal data analysis update (see bottom for associated code)
+#Needed new database for the Proposal analysis, because the folder structure had changed. Outside of R, set up DSN to connect to new blank Access database through ODBC. Created a User DSN named "PropLeadBlood".
+
+#Connect to the blank Access database using the Access 2007 version of the ODBC connection command.
+db_conn2 <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Joint Toxic Analysis/Lead-blood-levels-from-ICF_05262022.accdb")
 
 
 ##Testing process of subsetting data by Census Block and exporting to Access.
@@ -67,6 +75,27 @@ length(unique(leadblood_filtered$CB))
 
 #Export the extracted data to the database.
 sqlSave(db_conn,leadblood_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+
+############Manipulating lead-blood data for 2022 Proposal.
+
+#Create dataframe with lead blood level data from ICF for 2022 Proposal.
+#Naming each dataframe after the regulatory option, starting with Option 1.
+Option1 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/from ICF/2022 Proposal_PbB_05.18.22/IEUBK_CBG_Option1.csv")
+
+#Create subset with only 222 unique Census blocks of interest.
+#Filter the Option 1 data to only include rows data for the 222 unique Census blocks. 
+Option1_filtered <- semi_join(x= Option1, y = CBlist, by = c("CB" = "FIPS"))
+
+#Checking number of unique Census blocks in the filtered dataset. Total is 205 for Option 1.
+length(unique(Option1_filtered$CB))
+
+#Export the extracted data to the database.
+sqlSave(db_conn2,Option1_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+#Export the list of Census blocks to the database.
+sqlSave(db_conn2,CBlist, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
 
 
 #Close the ODBC connection.
