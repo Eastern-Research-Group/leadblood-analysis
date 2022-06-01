@@ -8,12 +8,14 @@ library(readr)
 install.packages("dplyr")
 library(dplyr)
 
+#############General analysis as part of initial exploration.
+
 #Create dataframe in R with lead blood level data from ICF.
 #IMPORTANT NOTE: Make sure the data are still saved at the filepath below. If data need to be downloaded again, Jill's email is saved at P:\Steam Supplemental\10 EA\04 Supplemental Analyses\ATSDR\R script\Email from Jill_02222022.msg.
 leadblood <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood data from ICF/IEUBK_CBG_OptionA.csv")
 
 #Create dataframe in R with unique Census blocks to pull corresponding lead-blood data.
-#Also ran for 2022 Proposal because it's still at same filepath.
+#**Run this for for 2022 Proposal too!
 CBlist <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Census Block GIS/unique-census-blocks-for-r.csv")
 
 #Checking data types for each column.
@@ -140,5 +142,6 @@ all_equal(Opt3_CBs, Opt4_CBs, ignore_row_order = TRUE)
 
 
 
-#Close the ODBC connection.
+#Close the ODBC connections. Close db_conn2 for the 2022 Proposal analysis. db_conn is from the initial exploration.
 odbcClose(db_conn)
+odbcClose(db_conn2)
