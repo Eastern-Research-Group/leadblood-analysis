@@ -26,10 +26,13 @@ db_conn <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental An
 
 
 #######2022 Proposal data analysis update (see bottom for associated code)
+#Run code above to create CBlist dataframe!
 #Needed new database for the Proposal analysis, because the folder structure had changed. Outside of R, set up DSN to connect to new blank Access database through ODBC. Created a User DSN named "PropLeadBlood".
 
 #Connect to the blank Access database using the Access 2007 version of the ODBC connection command.
 db_conn2 <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Joint Toxic Analysis/Lead-blood-levels-from-ICF_05262022.accdb")
+
+######End 2022 Proposal analysis update (see below for more)
 
 
 ##Testing process of subsetting data by Census Block and exporting to Access.
@@ -77,7 +80,7 @@ length(unique(leadblood_filtered$CB))
 sqlSave(db_conn,leadblood_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 
-############Manipulating lead-blood data for 2022 Proposal.
+############Manipulating lead-blood data for 2022 Proposal. Run late May 2022.
 
 #Create dataframe with lead blood level data from ICF for 2022 Proposal.
 #Naming each dataframe after the regulatory option, starting with Option 1.
@@ -95,6 +98,45 @@ sqlSave(db_conn2,Option1_filtered, rownames = FALSE, colnames = FALSE, safer = F
 
 #Export the list of Census blocks to the database.
 sqlSave(db_conn2,CBlist, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+#Repeating the same steps for Option 2.
+Option2 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/from ICF/2022 Proposal_PbB_05.18.22/IEUBK_CBG_Option2.csv")
+Option2_filtered <- semi_join(x= Option2, y = CBlist, by = c("CB" = "FIPS"))
+length(unique(Option2_filtered$CB))
+sqlSave(db_conn2,Option2_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+#Repeating the same steps for Option 3.
+Option3 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/from ICF/2022 Proposal_PbB_05.18.22/IEUBK_CBG_Option3.csv")
+Option3_filtered <- semi_join(x= Option3, y = CBlist, by = c("CB" = "FIPS"))
+length(unique(Option3_filtered$CB))
+sqlSave(db_conn2,Option3_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+#Repeating the same steps for Option 4.
+Option4 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/from ICF/2022 Proposal_PbB_05.18.22/IEUBK_CBG_Option4.csv")
+Option4_filtered <- semi_join(x= Option4, y = CBlist, by = c("CB" = "FIPS"))
+length(unique(Option4_filtered$CB))
+sqlSave(db_conn2,Option4_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+#Creating list of unique Census blocks for Option 1.
+Opt1_CBs <- distinct(Option1_filtered, CB)
+
+#Exporting the list to the Access database.
+sqlSave(db_conn2,Opt1_CBs, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+#Creating and exporting the list of Census blocks for Options 2, 3, and 4.
+Opt2_CBs <- distinct(Option2_filtered, CB)
+sqlSave(db_conn2,Opt2_CBs, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+Opt3_CBs <- distinct(Option3_filtered, CB)
+sqlSave(db_conn2,Opt3_CBs, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+Opt4_CBs <- distinct(Option4_filtered, CB)
+sqlSave(db_conn2,Opt4_CBs, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+
+#Checking whether the Census blocks are the same for options. Indicates that Opt 1 = Opt 2 = Opt 3 = Opt 4, so the unique Census blocks are the same for all options. Note that this function ignores the fact that the Census blocks aren't listed in the same order (i.e., the rows are not the same).
+all_equal(Opt1_CBs, Opt2_CBs, ignore_row_order = TRUE)
+all_equal(Opt2_CBs, Opt3_CBs, ignore_row_order = TRUE)
+all_equal(Opt3_CBs, Opt4_CBs, ignore_row_order = TRUE)
 
 
 
