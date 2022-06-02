@@ -94,6 +94,7 @@ Option1_filtered <- semi_join(x= Option1, y = CBlist, by = c("CB" = "FIPS"))
 
 #Checking number of unique Census blocks in the filtered dataset. Total is 205 for Option 1.
 length(unique(Option1_filtered$CB))
+#practice
 
 #Export the extracted data to the database.
 sqlSave(db_conn2,Option1_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
