@@ -14,8 +14,7 @@ library(dplyr)
 #IMPORTANT NOTE: Make sure the data are still saved at the filepath below. If data need to be downloaded again, Jill's email is saved at P:\Steam Supplemental\10 EA\04 Supplemental Analyses\ATSDR\R script\Email from Jill_02222022.msg.
 leadblood <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood data from ICF/IEUBK_CBG_OptionA.csv")
 
-#Create dataframe in R with unique Census blocks to pull corresponding lead-blood data.
-#**Run this for for 2022 Proposal too!
+#Create dataframe in R with unique Census blocks for 2020 to pull corresponding lead-blood data. Note that there is a different version of this Census block list for the 2022 Proposal (see code below).
 CBlist <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Census Block GIS/unique-census-blocks-for-r.csv")
 
 #Checking data types for each column.
@@ -33,6 +32,9 @@ db_conn <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental An
 
 #Connect to the blank Access database using the Access 2007 version of the ODBC connection command.
 db_conn2 <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Joint Toxic Analysis/Lead-blood-levels-from-ICF_05262022.accdb")
+
+#Create dataframe in R with unique Census blocks for 2022. Note that this is different from the original 'CBlist' above, which was based on 2020.
+CBlist2 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Census Block GIS/unique-2022-census-blocks-for-r.csv")
 
 ######End 2022 Proposal analysis update (see below for more)
 
@@ -90,35 +92,34 @@ Option1 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/from I
 
 #Create subset with only 222 unique Census blocks of interest.
 #Filter the Option 1 data to only include rows data for the 222 unique Census blocks. 
-Option1_filtered <- semi_join(x= Option1, y = CBlist, by = c("CB" = "FIPS"))
+Option1_filtered <- semi_join(x= Option1, y = CBlist2, by = c("CB" = "FIPS"))
 
 #Checking number of unique Census blocks in the filtered dataset. Total is 205 for Option 1.
 length(unique(Option1_filtered$CB))
-#practice
 
 #Export the extracted data to the database.
-sqlSave(db_conn2,Option1_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+sqlSave(db_conn2, Option1_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
-#Export the list of Census blocks to the database.
-sqlSave(db_conn2,CBlist, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+#Export the list of 2022 Census blocks to the database.
+sqlSave(db_conn2,CBlist2, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 #Repeating the same steps for Option 2.
 Option2 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/from ICF/2022 Proposal_PbB_05.18.22/IEUBK_CBG_Option2.csv")
-Option2_filtered <- semi_join(x= Option2, y = CBlist, by = c("CB" = "FIPS"))
+Option2_filtered <- semi_join(x= Option2, y = CBlist2, by = c("CB" = "FIPS"))
 length(unique(Option2_filtered$CB))
-sqlSave(db_conn2,Option2_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+sqlSave(db_conn2, Option2_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 #Repeating the same steps for Option 3.
 Option3 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/from ICF/2022 Proposal_PbB_05.18.22/IEUBK_CBG_Option3.csv")
-Option3_filtered <- semi_join(x= Option3, y = CBlist, by = c("CB" = "FIPS"))
+Option3_filtered <- semi_join(x= Option3, y = CBlist2, by = c("CB" = "FIPS"))
 length(unique(Option3_filtered$CB))
-sqlSave(db_conn2,Option3_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+sqlSave(db_conn2, Option3_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 #Repeating the same steps for Option 4.
 Option4 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/from ICF/2022 Proposal_PbB_05.18.22/IEUBK_CBG_Option4.csv")
-Option4_filtered <- semi_join(x= Option4, y = CBlist, by = c("CB" = "FIPS"))
+Option4_filtered <- semi_join(x= Option4, y = CBlist2, by = c("CB" = "FIPS"))
 length(unique(Option4_filtered$CB))
-sqlSave(db_conn2,Option4_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+sqlSave(db_conn2, Option4_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 #Creating list of unique Census blocks for Option 1.
 Opt1_CBs <- distinct(Option1_filtered, CB)
