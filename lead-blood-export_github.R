@@ -8,26 +8,27 @@ library(readr)
 install.packages("dplyr")
 library(dplyr)
 
-#############General analysis as part of initial exploration.
+#############8/24/2022 update: The script includes older code that was run as part of the initial exploration. It is no longer relevant and has been commented out. It may ultimately be deleted.
 
+#####Old code - do not run
 #Create dataframe in R with lead blood level data from ICF.
 #IMPORTANT NOTE: Make sure the data are still saved at the filepath below. If data need to be downloaded again, Jill's email is saved at P:\Steam Supplemental\10 EA\04 Supplemental Analyses\ATSDR\R script\Email from Jill_02222022.msg.
-leadblood <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood data from ICF/IEUBK_CBG_OptionA.csv")
+#leadblood <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood data from ICF/IEUBK_CBG_OptionA.csv")
 
 #Create dataframe in R with unique Census blocks for 2020 to pull corresponding lead-blood data. Note that there is a different version of this Census block list for the 2022 Proposal (see code below).
-CBlist <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Census Block GIS/unique-census-blocks-for-r.csv")
+#CBlist <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Census Block GIS/unique-census-blocks-for-r.csv")
 
 #Checking data types for each column.
-str(leadblood)
+#str(leadblood)
 
 #Outside of R, set up Data Source Name (DSN) to connect to the blank Access database through Open Database Connectivity (ODBC). This creates a connection to the filepath and allows R to export data to a table there. Used "ODBC Data Source Administrator (32-bit)" and created a User DSN named "TestLeadBlood".
 
 #Connect to the blank Access database using the Access 2007 version of the ODBC connection command.
-db_conn <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood-levels-from-ICF_02222022.accdb")
+#db_conn <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/ATSDR/Lead-blood-levels-from-ICF_02222022.accdb")
 
 
-#######2022 Proposal data analysis update (see bottom for associated code)
-#Run code above to create CBlist dataframe!
+#####Updated code - run
+#####2022 Proposal data analysis update (see bottom for associated code).
 #Needed new database for the Proposal analysis, because the folder structure had changed. Outside of R, set up DSN to connect to new blank Access database through ODBC. Created a User DSN named "PropLeadBlood".
 
 #Connect to the blank Access database using the Access 2007 version of the ODBC connection command.
@@ -36,55 +37,59 @@ db_conn2 <- odbcConnectAccess2007("P:/Steam Supplemental/10 EA/04 Supplemental A
 #Create dataframe in R with unique Census blocks for 2022. Note that this is different from the original 'CBlist' above, which was based on 2020.
 CBlist2 <- read_csv("P:/Steam Supplemental/10 EA/04 Supplemental Analyses/Census Block GIS/unique-2022-census-blocks-for-r.csv")
 
-######End 2022 Proposal analysis update (see below for more)
+#####End 2022 Proposal analysis update (see below for more)
 
 
-##Testing process of subsetting data by Census Block and exporting to Access.
+#####Old code - do not run. Testing process of subsetting data by Census Block and exporting to Access.
 #Filter main table to create table 'CBtest'
-CBtest <- leadblood %>%
-  filter(CB == "210859505002")
+#CBtest <- leadblood %>%
+  #filter(CB == "210859505002")
 
 #Export to Access as table called "CBtest." Confirmed exported successfully.
-sqlSave(db_conn, CBtest, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+#sqlSave(db_conn, CBtest, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 #Noticed that some of the values in the Population column are in scientific notation. Not sure if that is a problem. Tried testing issue below
 #Create filtered table without scientific notation, as intended.
-CBtest2 <- leadblood %>%
-  filter(CB == "482012324031")
+#CBtest2 <- leadblood %>%
+  #filter(CB == "482012324031")
 
 #Export "CBtest2" table to the Access database.
-sqlSave(db_conn, CBtest2, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+#sqlSave(db_conn, CBtest2, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 #Use sqlSave function to export the lead.blood dataframe to the Access database. 
 #Note to self: May need to delete or troubleshoot "varTypes."
-sqlSave(db_conn,leadblood, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, varTypes = columnTypes, fast = FALSE)
+#sqlSave(db_conn,leadblood, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, varTypes = columnTypes, fast = FALSE)
 
 
-####Separate analysis for Kristi, run on 3/3/2022.
+#####Old code - do not run
+#####Separate analysis for Kristi, run on 3/3/2022.
 
 #Calculate number of unique Census blocks in ICF's data.
-length(unique(leadblood$CB))
+#length(unique(leadblood$CB))
 
 #Create data frame with unique Census blocks.
-CensusBlocks <- unique(leadblood[c("CB")])
+#CensusBlocks <- unique(leadblood[c("CB")])
 
 #Export Census blocks data frame to Access database.
-sqlSave(db_conn,CensusBlocks, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+#sqlSave(db_conn,CensusBlocks, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
-######Extract lead-blood data for unique Census blocks. Run on 3/24/22.
+
+#####Old code - do not run.
+#####This  was based on the 2020 Census blocks. The purpose of this code was to extract lead-blood data for unique Census blocks. Run on 3/24/22.
 
 #Create subset of leadblood dataframe with only Census blocks of interest (the 222 unique blocks).
 #Filter the leadblood data to only include rows data for the 222 unique Census blocks. 
-leadblood_filtered <- semi_join(x= leadblood, y = CBlist, by = c("CB" = "FIPS"))
+#leadblood_filtered <- semi_join(x= leadblood, y = CBlist, by = c("CB" = "FIPS"))
 
 #Confirm that the number of unique Census blocks in the extracted column is 222 as expected.
-length(unique(leadblood_filtered$CB))
+#length(unique(leadblood_filtered$CB))
 
 #Export the extracted data to the database.
-sqlSave(db_conn,leadblood_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
+#sqlSave(db_conn,leadblood_filtered, rownames = FALSE, colnames = FALSE, safer = FALSE, addPK = FALSE, fast = FALSE)
 
 
-############Manipulating lead-blood data for 2022 Proposal. Run late May 2022.
+############Updated code- run.
+#####Manipulating lead-blood data for 2022 Proposal. Run late May 2022.
 
 #Create dataframe with lead blood level data from ICF for 2022 Proposal.
 #Naming each dataframe after the regulatory option, starting with Option 1.
@@ -144,6 +149,6 @@ all_equal(Opt3_CBs, Opt4_CBs, ignore_row_order = TRUE)
 
 
 
-#Close the ODBC connections. Close db_conn2 for the 2022 Proposal analysis. db_conn is from the initial exploration.
-odbcClose(db_conn)
+#Close the ODBC connection. Close db_conn2 for the 2022 Proposal analysis. db_conn is from the initial exploration and has been commented out.
+#odbcClose(db_conn)
 odbcClose(db_conn2)
